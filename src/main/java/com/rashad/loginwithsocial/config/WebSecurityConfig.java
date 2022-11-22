@@ -78,8 +78,7 @@ public class WebSecurityConfig {
                         .allowedOrigins(
                                 "http://localhost:3000",
                                 "https://stadium-booking.vercel.app",
-                                "http://localhost:8081",
-                                "https://springstadium-production.up.railway.app")
+                                "http://localhost:8081")
                         .allowedMethods("*");
             }
         };

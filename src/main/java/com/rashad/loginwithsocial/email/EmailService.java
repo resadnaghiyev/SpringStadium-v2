@@ -3,6 +3,7 @@ package com.rashad.loginwithsocial.email;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -14,6 +15,9 @@ import javax.mail.internet.MimeMessage;
 @Service
 @AllArgsConstructor
 public class EmailService implements EmailSender {
+
+    @Value("${GMAIL_USERNAME}")
+    private String email_from;
 
     private final static Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
 
@@ -28,7 +32,7 @@ public class EmailService implements EmailSender {
             helper.setText(email, true);
             helper.setTo(to);
             helper.setSubject("Confirm your email");
-            helper.setFrom("resad.nagiyev89@gmail.com");
+            helper.setFrom(email_from);
             mailSender.send(mimeMessage);
         } catch (MessagingException e) {
             LOGGER.error("failed to send email", e);

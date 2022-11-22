@@ -5,9 +5,9 @@ import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,6 +15,9 @@ import java.util.Arrays;
 
 @Configuration
 public class SwaggerConfig {
+
+    @Value("${RAILWAY_PROD_URL}")
+    private String baseUrl;
 
     @Bean
     public OpenAPI springStadiumOpenAPI() {
@@ -33,7 +36,7 @@ public class SwaggerConfig {
                         new Server().description("Local")
                                 .url("http://localhost:8081/api/v1"),
                         new Server().description("Production")
-                                .url("https://springstadium-production.up.railway.app/api/v1")))
+                                .url(baseUrl + "/api/v1")))
                 .components(new Components()
                         .addSecuritySchemes("BearerJwt", new SecurityScheme()
                                 .name("BearerJwt")
