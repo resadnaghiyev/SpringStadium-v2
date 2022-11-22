@@ -16,9 +16,6 @@ import javax.mail.internet.MimeMessage;
 @AllArgsConstructor
 public class EmailService implements EmailSender {
 
-    @Value("${mail.username}")
-    private String email_from;
-
     private final static Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
 
     private final JavaMailSender mailSender;
@@ -32,7 +29,7 @@ public class EmailService implements EmailSender {
             helper.setText(email, true);
             helper.setTo(to);
             helper.setSubject("Confirm your email");
-            helper.setFrom(email_from);
+            helper.setFrom("resad.nagiyev89@gmail.com");
             mailSender.send(mimeMessage);
         } catch (MessagingException e) {
             LOGGER.error("failed to send email", e);
