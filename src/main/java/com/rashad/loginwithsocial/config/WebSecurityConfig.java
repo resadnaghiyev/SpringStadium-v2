@@ -2,6 +2,7 @@ package com.rashad.loginwithsocial.config;
 
 import com.rashad.loginwithsocial.jwt.JwtFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,6 +24,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig {
+
+    @Value("${prod.railway.url}")
+    private String baseUrl;
 
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder bCryptPasswordEncoder;
@@ -78,7 +82,8 @@ public class WebSecurityConfig {
                         .allowedOrigins(
                                 "http://localhost:3000",
                                 "https://stadium-booking.vercel.app",
-                                "http://localhost:8081")
+                                "http://localhost:8081",
+                                baseUrl)
                         .allowedMethods("*");
             }
         };
