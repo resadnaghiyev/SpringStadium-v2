@@ -16,7 +16,7 @@ import java.util.Arrays;
 @Configuration
 public class SwaggerConfig {
 
-    @Value("${RAILWAY_PROD_URL}")
+    @Value("${prod.railway.url}")
     private String baseUrl;
 
     @Bean

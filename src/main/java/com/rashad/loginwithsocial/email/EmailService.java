@@ -16,7 +16,7 @@ import javax.mail.internet.MimeMessage;
 @AllArgsConstructor
 public class EmailService implements EmailSender {
 
-    @Value("${GMAIL_USERNAME}")
+    @Value("${mail.username}")
     private String email_from;
 
     private final static Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
