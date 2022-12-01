@@ -1,28 +1,28 @@
 package com.rashad.loginwithsocial.entity;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.Collection;
 
 @Entity
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
 @AllArgsConstructor
-@Table(name = "roles")
-public class Role {
+@NoArgsConstructor
+@Table(name = "com_phones")
+public class ComPhone {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(unique = true)
-    private ERole name;
+    private String phone;
 
-    public Role(ERole name) {
-        this.name = name;
+    public ComPhone(String phone) {
+        this.phone = phone;
     }
 }
+

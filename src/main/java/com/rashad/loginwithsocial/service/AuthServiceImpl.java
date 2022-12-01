@@ -2,13 +2,16 @@ package com.rashad.loginwithsocial.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rashad.loginwithsocial.email.EmailSender;
-import com.rashad.loginwithsocial.email.EmailValidator;
+import com.rashad.loginwithsocial.service.impl.AuthService;
+import com.rashad.loginwithsocial.validator.EmailValidator;
 import com.rashad.loginwithsocial.entity.ConfirmationToken;
 import com.rashad.loginwithsocial.entity.User;
 import com.rashad.loginwithsocial.jwt.JwtUtils;
 import com.rashad.loginwithsocial.model.*;
 import com.rashad.loginwithsocial.repository.UserRepository;
-import lombok.AllArgsConstructor;
+import com.rashad.loginwithsocial.validator.PasswordValidator;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -30,8 +33,11 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Service
-@AllArgsConstructor
-public class AuthService {
+@RequiredArgsConstructor
+public class AuthServiceImpl implements AuthService {
+
+    @Value("${base.url}")
+    private String baseUrl;
 
     private final JwtUtils jwtUtils;
     private final EmailSender emailSender;
@@ -40,8 +46,9 @@ public class AuthService {
     private final EmailValidator emailValidator;
     private final PasswordValidator passwordValidator;
     private final AuthenticationManager authenticationManager;
-    private final ConfirmationTokenService confirmationTokenService;
+    private final ConfirmTokenServiceImpl confirmTokenServiceImpl;
 
+    @Override
     public String register(RegisterRequest request) {
         if (!emailValidator.test(request.getEmail())) {
             throw new IllegalStateException("email not valid");
@@ -59,23 +66,25 @@ public class AuthService {
                         request.getPassword()
                 )
         );
-        String link = "https://stadiumv1.herokuapp.com/api/v1/user/register/confirm?token=" + token;
+        String link = baseUrl + "/api/v1/user/register/confirm?token=" + token;
         emailSender.send(request.getEmail(), buildEmail(request.getName(), link));
         return "Confirmation token send to email: " + request.getEmail();
     }
 
+    @Override
     public String resendToken(String token) {
-        ConfirmationToken oldToken = confirmationTokenService.getToken(token).orElseThrow(() ->
+        ConfirmationToken oldToken = confirmTokenServiceImpl.getToken(token).orElseThrow(() ->
                 new IllegalStateException("Token is not valid"));
         String newToken = userService.createToken(oldToken.getUser());
-        String link = "https://stadiumv1.herokuapp.com/api/v1/user/register/confirm?token=" + newToken;
+        String link = baseUrl + "/api/v1/user/register/confirm?token=" + newToken;
         emailSender.send(oldToken.getUser().getEmail(), buildEmail(oldToken.getUser().getName(), link));
         return "Confirmation token send to email: " + oldToken.getUser().getEmail();
     }
 
+    @Override
     @Transactional
     public String confirmToken(String token) {
-        ConfirmationToken confirmationToken = confirmationTokenService.getToken(token)
+        ConfirmationToken confirmationToken = confirmTokenServiceImpl.getToken(token)
                 .orElseThrow(() -> new IllegalStateException("token not valid"));
         if (confirmationToken.getConfirmedAt() != null) {
             throw new IllegalStateException("Email already confirmed");
@@ -84,27 +93,20 @@ public class AuthService {
         if (expiredAt.isBefore(LocalDateTime.now())) {
             throw new IllegalStateException("token expired");
         }
-        confirmationTokenService.setConfirmedAt(token);
+        confirmTokenServiceImpl.setConfirmedAt(token);
         userService.enableUser(confirmationToken.getUser().getUsername());
         return "User confirmed";
     }
 
+    @Override
     public Map<String, List<String>> loginUser(LoginRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 request.getUsername(),
                 request.getPassword()));
-        UserDetails userDetails = userService.loadUserByUsername(request.getUsername());
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
-        Map<String, List<String>> tokens = new HashMap<>();
-        tokens.put("access", List.of(jwtUtils.generateAccessToken(userDetails)));
-        tokens.put("refresh", List.of(jwtUtils.generateRefreshToken(userDetails)));
-        tokens.put("username", List.of(request.getUsername()));
-        tokens.put("roles", roles);
-        return tokens;
+        return getJwtTokens(request.getUsername());
     }
 
+    @Override
     public Map<String, List<String>> loginWithGoogle(GoogleLogin request) {
         if (!emailValidator.test(request.getEmail())) {
             throw new IllegalStateException("email not valid");
@@ -113,18 +115,23 @@ public class AuthService {
         if (user == null) {
             user = userService.registerGoogle(convertTo(request));
         }
-        UserDetails userDetails = userService.loadUserByUsername(user.getUsername());
+        return getJwtTokens(user.getUsername());
+    }
+
+    public Map<String, List<String>> getJwtTokens(String username) {
+        UserDetails userDetails = userService.loadUserByUsername(username);
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
         Map<String, List<String>> tokens = new HashMap<>();
         tokens.put("access", List.of(jwtUtils.generateAccessToken(userDetails)));
         tokens.put("refresh", List.of(jwtUtils.generateRefreshToken(userDetails)));
-        tokens.put("username", List.of(user.getUsername()));
+        tokens.put("username", List.of(username));
         tokens.put("roles", roles);
         return tokens;
     }
 
+    @Override
     public JwtResponse refreshToken(HttpServletRequest request,
                                     HttpServletResponse response) throws IOException {
         String authorization = request.getHeader("Authorization");

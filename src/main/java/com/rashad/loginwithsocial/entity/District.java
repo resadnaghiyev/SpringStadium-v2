@@ -1,21 +1,21 @@
 package com.rashad.loginwithsocial.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Category extends Auditable<String> {
+@Table(name = "districts")
+public class District {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -23,7 +23,11 @@ public class Category extends Auditable<String> {
 
     private String name;
 
-    public Category(String name) {
+    @JsonIgnore
+    @OneToMany(mappedBy = "district")
+    private List<Stadium> stadiums;
+
+    public District(String name) {
         this.name = name;
     }
 }

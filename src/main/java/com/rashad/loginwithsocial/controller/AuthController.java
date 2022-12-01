@@ -1,7 +1,7 @@
 package com.rashad.loginwithsocial.controller;
 
 import com.rashad.loginwithsocial.model.*;
-import com.rashad.loginwithsocial.service.AuthService;
+import com.rashad.loginwithsocial.service.AuthServiceImpl;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,7 +30,7 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 @Tag(name = "1. Login and Register")
 public class AuthController {
 
-    private final AuthService authService;
+    private final AuthServiceImpl authServiceImpl;
 
     @Operation(
             summary = "Register",
@@ -41,7 +41,7 @@ public class AuthController {
     )
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Valid RegisterRequest request) {
-        String message = authService.register(request);
+        String message = authServiceImpl.register(request);
         return new ResponseEntity<>(
                 new CustomResponse(true, null, message, null), HttpStatus.CREATED);
     }
@@ -56,7 +56,7 @@ public class AuthController {
     )
     @GetMapping("/register/resend")
     public ResponseEntity<?> resendToken(@RequestParam("token") String token) {
-        String message = authService.resendToken(token);
+        String message = authServiceImpl.resendToken(token);
         return new ResponseEntity<>(
                 new CustomResponse(true, null, message, null), HttpStatus.OK);
     }
@@ -71,7 +71,7 @@ public class AuthController {
     )
     @GetMapping("/register/confirm")
     public ResponseEntity<?> confirm(@RequestParam("token") String token) {
-        String message = authService.confirmToken(token);
+        String message = authServiceImpl.confirmToken(token);
         return new ResponseEntity<>(
                 new CustomResponse(true, null, message, null), HttpStatus.OK);
     }
@@ -85,7 +85,7 @@ public class AuthController {
     )
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequest request) {
-        Map<String, List<String>> tokens = authService.loginUser(request);
+        Map<String, List<String>> tokens = authServiceImpl.loginUser(request);
         JwtResponse jwt = new JwtResponse(
                 tokens.get("access").get(0), tokens.get("refresh").get(0),
                 tokens.get("username").get(0), tokens.get("roles"));
@@ -95,7 +95,7 @@ public class AuthController {
     @Hidden
     @PostMapping("/google/login")
     public ResponseEntity<?> google(@RequestBody GoogleLogin request) {
-        Map<String, List<String>> tokens = authService.loginWithGoogle(request);
+        Map<String, List<String>> tokens = authServiceImpl.loginWithGoogle(request);
         JwtResponse jwt = new JwtResponse(
                 tokens.get("access").get(0), tokens.get("refresh").get(0),
                 tokens.get("username").get(0), tokens.get("roles"));
@@ -114,7 +114,7 @@ public class AuthController {
     @GetMapping("/token/refresh")
     public ResponseEntity<?> refreshToken(HttpServletRequest request,
                              HttpServletResponse response) throws IOException {
-        JwtResponse jwt = authService.refreshToken(request, response);
+        JwtResponse jwt = authServiceImpl.refreshToken(request, response);
         if (jwt.getAccessToken() != null) {
             return new ResponseEntity<>(new CustomResponse(true, jwt, "", null), HttpStatus.OK);
         }

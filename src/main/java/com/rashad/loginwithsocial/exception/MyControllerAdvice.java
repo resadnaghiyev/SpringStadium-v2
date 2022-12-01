@@ -4,12 +4,14 @@ import com.rashad.loginwithsocial.model.CustomResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.HashMap;
@@ -55,12 +57,28 @@ public class MyControllerAdvice {
                 false, null, "", errorMap), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<?> handleMediaTypeNotSupported(HttpMediaTypeNotSupportedException exception){
+        Map<String, String> errorMap = new HashMap<>();
+        errorMap.put("multipart", exception.getMessage());
+        return new ResponseEntity<>(new CustomResponse(
+                false, null, "", errorMap), HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+    }
+
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<?> handleMissingRequestPart(MissingServletRequestPartException exception){
+        Map<String, String> errorMap = new HashMap<>();
+        errorMap.put("multipart", exception.getMessage());
+        return new ResponseEntity<>(new CustomResponse(
+                false, null, "", errorMap), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
     public ResponseEntity<?> handleSql(SQLIntegrityConstraintViolationException exception) {
         Map<String, String> errorMap = new HashMap<>();
-        String exMess = exception.getMessage();
-        String error = exMess.substring(0, exMess.indexOf("for") - 1);
-        errorMap.put("sql", error);
+//        String exMess = exception.getMessage();
+//        String error = exMess.substring(0, exMess.indexOf("for") - 1);
+        errorMap.put("sql", exception.getMessage());
         return new ResponseEntity<>(new CustomResponse(
                 false, null, "", errorMap), HttpStatus.BAD_REQUEST);
     }

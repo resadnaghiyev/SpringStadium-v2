@@ -23,4 +23,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("UPDATE User a " +
             "SET a.enabled = TRUE WHERE a.username = ?1")
     void enableUser(String username);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE User a " +
+            "SET a.isPrivate = TRUE WHERE a.id = ?1")
+    void setPrivate(Long userId);
 }

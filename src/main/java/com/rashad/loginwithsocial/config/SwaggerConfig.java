@@ -12,11 +12,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 public class SwaggerConfig {
 
-    @Value("${prod.railway.url}")
+    @Value("${base.url}")
     private String baseUrl;
 
     @Bean
@@ -32,11 +33,8 @@ public class SwaggerConfig {
                 .externalDocs(new ExternalDocumentation()
                         .description("Our Web Site")
                         .url("https://stadium-booking.vercel.app"))
-                .servers(Arrays.asList(
-                        new Server().description("Local")
-                                .url("http://localhost:8081/api/v1"),
-                        new Server().description("Production")
-                                .url(baseUrl + "/api/v1")))
+                .servers(List.of(
+                        new Server().description("Base URL").url(baseUrl + "/api/v1")))
                 .components(new Components()
                         .addSecuritySchemes("BearerJwt", new SecurityScheme()
                                 .name("BearerJwt")

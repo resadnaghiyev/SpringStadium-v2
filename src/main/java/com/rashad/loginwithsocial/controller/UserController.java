@@ -129,7 +129,7 @@ public class UserController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<?> getUser(@PathVariable("id") Long userId) {
-        User user = userService.getUserFromId(userId);
+        Object user = userService.getUserFromId(userId);
         Map<String, Object> data = new HashMap<>();
         data.put("user_details", user);
         return new ResponseEntity<>(new CustomResponse(true, data, "", null), HttpStatus.OK);
@@ -164,6 +164,23 @@ public class UserController {
         Map<String, Object> data = new HashMap<>();
         data.put("user_id", userId);
         data.put("message", "User deleted successfully.");
+        return new ResponseEntity<>(new CustomResponse(true, data, "", null), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Set user profile private",
+            description = "For setting user profile private you have to send user id",
+            parameters = {@Parameter(name = "id", description = "userId", example = "5")},
+            responses = {@ApiResponse(responseCode = "200", description = "Success response",
+                    content = @Content(schema = @Schema(implementation = CustomResponse.class),
+                            mediaType = MediaType.APPLICATION_JSON_VALUE))}
+    )
+    @PostMapping("/{id}/private")
+    public ResponseEntity<?> setPrivate(@PathVariable("id") Long userId) {
+        userService.setPrivate(userId);
+        Map<String, Object> data = new HashMap<>();
+        data.put("user_id", userId);
+        data.put("message", "Your profile private now.");
         return new ResponseEntity<>(new CustomResponse(true, data, "", null), HttpStatus.OK);
     }
 }

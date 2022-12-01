@@ -1,4 +1,4 @@
-package com.rashad.loginwithsocial.service;
+package com.rashad.loginwithsocial.validator;
 
 import org.springframework.stereotype.Service;
 
@@ -12,7 +12,7 @@ public class PasswordValidator implements Predicate<String> {
     @Override
     public boolean test(String password) {
 
-        String regex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,20}$";
+        String regex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=_])(?=\\S+$).{8,20}$";
 
         Pattern pattern = Pattern.compile(regex);
 

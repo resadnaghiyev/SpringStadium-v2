@@ -2,10 +2,11 @@ package com.rashad.loginwithsocial.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-import org.springframework.boot.context.properties.bind.DefaultValue;
+import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 @Data
 @AllArgsConstructor
@@ -14,10 +15,12 @@ import javax.validation.constraints.NotNull;
 @ToString
 public class RegisterRequest {
 
+    @Length(max = 20)
     @NotBlank(message = "required should not be empty")
     @Schema(example = "Rashad")
     private String name;
 
+    @Length(max = 20)
     @NotBlank(message = "required should not be empty")
     @Schema(example = "Naghiyev")
     private String surname ;
@@ -30,6 +33,7 @@ public class RegisterRequest {
     @Schema(example = "+994504453278")
     private String phone;
 
+    @Length(min = 4, max = 20)
     @NotBlank(message = "required should not be empty")
     @Schema(example = "resad")
     private String username;

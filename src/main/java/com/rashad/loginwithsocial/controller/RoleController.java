@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/roles")
 @AllArgsConstructor
-@Tag(name = "4. Role CRUD")
+@Tag(name = "6. Role CRUD")
 @Hidden
 public class RoleController {
 

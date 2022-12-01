@@ -48,6 +48,7 @@ public class User extends Auditable<String> {
 
     private Boolean locked = false;
     private Boolean enabled = false;
+    private Boolean isPrivate = false;
 
     public User(String name,
                 String surname,

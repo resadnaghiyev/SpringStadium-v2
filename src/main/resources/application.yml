@@ -40,9 +40,8 @@ spring:
 jwt:
   secret: ${JWT_SECRET_KEY}
 
-prod:
-  railway:
-    url: ${RAILWAY_PROD_URL}
+base:
+  url: ${STADIUM_BASE_URL}
 
 springdoc:
   swagger-ui:

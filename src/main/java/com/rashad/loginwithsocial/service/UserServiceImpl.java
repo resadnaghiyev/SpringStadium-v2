@@ -4,11 +4,13 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.rashad.loginwithsocial.entity.User;
 import com.rashad.loginwithsocial.model.BioRequest;
+import com.rashad.loginwithsocial.model.PrivateProfile;
 import com.rashad.loginwithsocial.repository.RoleRepository;
 import com.rashad.loginwithsocial.repository.UserRepository;
 import com.rashad.loginwithsocial.entity.ConfirmationToken;
 import com.rashad.loginwithsocial.entity.ERole;
 import com.rashad.loginwithsocial.entity.Role;
+import com.rashad.loginwithsocial.service.impl.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,7 +33,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder bCryptPasswordEncoder;
-    private final ConfirmationTokenService confirmationTokenService;
+    private final ConfirmTokenServiceImpl confirmTokenServiceImpl;
 
     Cloudinary cloudinary = new Cloudinary();
 
@@ -64,7 +66,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 user
         );
         user.getConfirmationTokens().add(confirmationToken);
-        confirmationTokenService.saveConfirmationToken(confirmationToken);
+        confirmTokenServiceImpl.saveConfirmationToken(confirmationToken);
         return token;
     }
 
@@ -164,15 +166,30 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    public void setPrivate(Long userId) {
+        userRepository.setPrivate(userId);
+    }
+
+    @Override
     public User getUserFromUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(() ->
                 new IllegalStateException("User with username: " + username + " is not found"));
     }
 
     @Override
-    public User getUserFromId(Long id) {
-        return userRepository.findById(id).orElseThrow(() ->
+    public Object getUserFromId(Long id) {
+        User user = userRepository.findById(id).orElseThrow(() ->
                 new IllegalStateException("User with id: " + id + " is not found"));
+        if (user.getIsPrivate()) {
+            return new PrivateProfile(
+                    user.getId(),
+                    user.getName(),
+                    user.getSurname(),
+                    user.getUsername(),
+                    user.getAvatarUrl(),
+                    user.getBiography());
+        }
+        return user;
     }
 
     @Override
@@ -189,8 +206,3 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 
 
-//        Collection<Role> roles = new ArrayList<>();
-//        Role userRole = roleRepository.findByName(ERole.ROLE_USER).orElseThrow(() ->
-//                new RuntimeException("Error, Role USER is not found"));
-//        roles.add(userRole);
-//        user.setRoles(roles);

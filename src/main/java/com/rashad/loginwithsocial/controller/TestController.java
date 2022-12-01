@@ -1,10 +1,8 @@
 package com.rashad.loginwithsocial.controller;
 
-import com.rashad.loginwithsocial.entity.Category;
-import com.rashad.loginwithsocial.entity.User;
-import com.rashad.loginwithsocial.model.RoleRequest;
-import com.rashad.loginwithsocial.repository.CategoryRepo;
-import com.rashad.loginwithsocial.repository.UserRepository;
+import com.rashad.loginwithsocial.entity.*;
+import com.rashad.loginwithsocial.model.StadiumRequest;
+import com.rashad.loginwithsocial.repository.*;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -14,12 +12,17 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/test")
 @AllArgsConstructor
-@Tag(name = "5. Testing CRUD")
+@Tag(name = "7. Testing CRUD")
 @Hidden
 public class TestController {
 
-    private final CategoryRepo repo;
     private final UserRepository userRepo;
+    private final RoleRepository roleRepository;
+    private final CompanyRepository companyRepository;
+    private final StadiumRepository stadiumRepository;
+    private final ComPhoneRepository comPhoneRepository;
+    private final StdImageRepository stdImageRepository;
+    private final ConfirmationTokenRepository confirmationTokenRepository;
 
     @GetMapping("/all")
     public String allAccess() {
@@ -44,31 +47,50 @@ public class TestController {
         return "admin API";
     }
 
-    @PostMapping("/create")
-    @PreAuthorize("hasRole('USER')")
-    public String add(@RequestBody RoleRequest request) {
-        String category = request.getRoleName();
-        Category cate = new Category(category);
-        repo.save(cate);
-        return "success";
+    @PostMapping("/info/{id}")
+    public Role userInfo(@PathVariable Long id) {
+        return roleRepository.findById(id).orElseThrow();
     }
 
-    @PostMapping("/update")
-    @PreAuthorize("hasRole('USER')")
-    public String update(@RequestBody RoleRequest request) {
-        String category = request.getRoleName();
-        Category cate = repo.findByName(category);
-        cate.setName("new name");
-        repo.save(cate);
-        return "success";
+    @DeleteMapping("/token/{id}")
+    public String deleteToken(@PathVariable Long id) {
+        confirmationTokenRepository.deleteById(id);
+        return "deleted " + id;
     }
 
-    @PostMapping("/info")
-    @PreAuthorize("hasRole('USER')")
-    public String userInfo(@RequestBody RoleRequest request) {
-        String username = request.getRoleName();
-        User user = userRepo.findByUsername(username).orElseThrow();
-        String created = user.getCreatedDate().toString();
-        return created;
+//    @PostMapping("/company")
+//    public String createCompany(@RequestBody CompanyRequest request) {
+//        List<ComPhone> phones = new ArrayList<>();
+//        for (PhoneRequest i : request.getComPhones()) {
+//            ComPhone phone = new ComPhone(i.getPhone());
+//            phones.add(phone);
+//            phoneRepository.save(phone);
+//        }
+//        Company company = new Company(request.getName(), request.getAbout(), phones);
+//        companyRepository.save(company);
+//        return "created";
+//    }
+
+    @PostMapping("/{id}/stadium")
+    public String createStadium(@RequestBody StadiumRequest request, @PathVariable Long id) {
+//        List<StdPhone> stdPhones = new ArrayList<>();
+//        for (PhoneRequest i : request.getComPhones()) {
+//            StdPhone stdPhone = new StdPhone(i.getPhone());
+//            stdPhones.add(stdPhone);
+//            stdPhoneRepository.save(stdPhone);
+//        }
+//        Company company = companyRepository.findById(id).orElseThrow();
+//        Stadium stadium = new Stadium(
+//                request.getName(),
+//                request.getAddress(),
+//                request.getLatitude(),
+//                request.getLongitude(),
+//                request.getPrice(),
+//                stdPhones,
+//                company
+//        );
+//        stadiumRepository.save(stadium);
+        return "created";
     }
+
 }

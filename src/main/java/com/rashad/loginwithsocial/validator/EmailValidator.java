@@ -1,4 +1,4 @@
-package com.rashad.loginwithsocial.email;
+package com.rashad.loginwithsocial.validator;
 
 import org.springframework.stereotype.Service;
 

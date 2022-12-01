@@ -1,4 +1,4 @@
-package com.rashad.loginwithsocial.service;
+package com.rashad.loginwithsocial.service.impl;
 
 import com.rashad.loginwithsocial.entity.ERole;
 import com.rashad.loginwithsocial.entity.Role;
@@ -25,7 +25,7 @@ public interface UserService {
 
     User getUserFromUsername(String username);
 
-    User getUserFromId(Long id);
+    Object getUserFromId(Long id);
 
     List<User> getAllUsers();
 
@@ -38,4 +38,6 @@ public interface UserService {
     void deleteAvatar(Long id) throws IOException;
 
     User getUserMe();
+
+    void setPrivate(Long userId);
 }
