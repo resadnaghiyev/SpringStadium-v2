@@ -2,10 +2,7 @@ package com.rashad.loginwithsocial.controller;
 
 import com.rashad.loginwithsocial.entity.Company;
 import com.rashad.loginwithsocial.entity.Stadium;
-import com.rashad.loginwithsocial.model.CompanyRequest;
-import com.rashad.loginwithsocial.model.CustomResponse;
-import com.rashad.loginwithsocial.model.RegisterRequest;
-import com.rashad.loginwithsocial.model.StadiumRequest;
+import com.rashad.loginwithsocial.model.*;
 import com.rashad.loginwithsocial.repository.StadiumRepository;
 import com.rashad.loginwithsocial.service.AdminServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,17 +15,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor
+//@PreAuthorize("hasRole('ADMIN')")
 @Tag(name = "3. Admin CRUD")
 public class AdminController {
 
@@ -164,12 +164,26 @@ public class AdminController {
     )
     @PostMapping(value = "/stadium/{id}/upload/image", consumes = "multipart/form-data")
     public ResponseEntity<?> uploadStadiumPhotos(@PathVariable("id") Long stadiumId,
-                                                 @RequestParam("file") MultipartFile file)
+                                                 @RequestParam("file") MultipartFile[] files)
                                                  throws IOException {
-        Stadium stadium = adminServiceImpl.uploadStadiumImage(stadiumId, file);
+        Stadium stadium = adminServiceImpl.uploadStadiumImage(stadiumId, files);
         String message = "Stadium: " + stadium.getName() + " created successfully";
         return new ResponseEntity<>(new CustomResponse(true, stadium, message, null), HttpStatus.OK);
     }
 
-
+    @Operation(
+            summary = "Delete stadium images",
+            description = "For delete image you have to send stadium id with body example like shown below",
+            parameters = {@Parameter(name = "id", description = "stadiumId", example = "5")},
+            responses = {@ApiResponse(responseCode = "200", description = "Success response",
+                    content = @Content(schema = @Schema(implementation = CustomResponse.class),
+                            mediaType = MediaType.APPLICATION_JSON_VALUE))}
+    )
+    @DeleteMapping("/stadium/{id}/delete/image")
+    public ResponseEntity<?> deleteStadiumImage(@PathVariable("id") Long stadiumId,
+                                                @RequestBody @Valid ImageRequest request)
+                                                throws IOException {
+        Map<String, List<Long>> data = adminServiceImpl.deleteStadiumImage(stadiumId, request);
+        return new ResponseEntity<>(new CustomResponse(true, data, "", null), HttpStatus.OK);
+    }
 }

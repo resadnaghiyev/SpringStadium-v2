@@ -3,11 +3,14 @@ package com.rashad.loginwithsocial.service.impl;
 import com.rashad.loginwithsocial.entity.Company;
 import com.rashad.loginwithsocial.entity.Stadium;
 import com.rashad.loginwithsocial.model.CompanyRequest;
+import com.rashad.loginwithsocial.model.ImageRequest;
 import com.rashad.loginwithsocial.model.RegisterRequest;
 import com.rashad.loginwithsocial.model.StadiumRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 public interface AdminService {
 
@@ -23,7 +26,7 @@ public interface AdminService {
 
     Long createStadium(Long companyId, StadiumRequest request);
 
-    Stadium uploadStadiumImage(Long id, MultipartFile file) throws IOException;
+    Stadium uploadStadiumImage(Long id, MultipartFile[] files) throws IOException;
 
-    void deleteStadiumImage(Long id);
+    Map<String, List<Long>> deleteStadiumImage(Long id, ImageRequest request) throws IOException;
 }

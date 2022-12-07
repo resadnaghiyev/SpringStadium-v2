@@ -3,10 +3,7 @@ package com.rashad.loginwithsocial.service;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.rashad.loginwithsocial.entity.*;
-import com.rashad.loginwithsocial.model.CompanyRequest;
-import com.rashad.loginwithsocial.model.PhoneRequest;
-import com.rashad.loginwithsocial.model.RegisterRequest;
-import com.rashad.loginwithsocial.model.StadiumRequest;
+import com.rashad.loginwithsocial.model.*;
 import com.rashad.loginwithsocial.repository.*;
 import com.rashad.loginwithsocial.service.impl.AdminService;
 import lombok.RequiredArgsConstructor;
@@ -14,10 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -143,29 +137,55 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public Stadium uploadStadiumImage(Long id, MultipartFile file) throws IOException {
-        if (!file.isEmpty()) {
-            Stadium stadium = stadiumRepository.findById(id).orElseThrow(() ->
-                    new IllegalStateException("Stadium with id: " + id + " not found"));
-//            if (stadium.getImages() != null) {
-//                deleteStadiumImage(id);
-//            }
-            Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(),
-                    ObjectUtils.asMap("folder", "/media/stadium_images"));
-            StdImage image = new StdImage(uploadResult.get("url").toString());
-            stdImageRepository.save(image);
-            List<StdImage> images = new ArrayList<>();
-            images.add(image);
-            stadium.setImages(images);
-            stadiumRepository.save(stadium);
-            return stadium;
+    public Stadium uploadStadiumImage(Long id, MultipartFile[] files) throws IOException {
+        Stadium stadium = stadiumRepository.findById(id).orElseThrow(() ->
+                new IllegalStateException("Stadium with id: " + id + " not found"));
+        if (!files[0].isEmpty()) {
+            for (MultipartFile file : files) {
+                Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(),
+                        ObjectUtils.asMap("folder", "/media/stadium_images"));
+                StdImage image = new StdImage(uploadResult.get("secure_url").toString());
+                stdImageRepository.save(image);
+                stadium.getImages().add(image);
+                stadiumRepository.save(stadium);
+            }
         } else {
             throw new IllegalStateException("Parameter: file required shouldn't be empty");
         }
+        return stadium;
     }
 
     @Override
-    public void deleteStadiumImage(Long id) {
-
+    public Map<String, List<Long>> deleteStadiumImage(Long id, ImageRequest request) throws IOException {
+        Stadium stadium = stadiumRepository.findById(id).orElseThrow(() ->
+                new IllegalStateException("Stadium with id: " + id + " not found"));
+        Map<String, List<Long>> response = new HashMap<>();
+        List<Long> success = new ArrayList<>();
+        List<Long> failed = new ArrayList<>();
+        List<Long> notFound = new ArrayList<>();
+        if (request.getImageIdList().size() == 0) {
+            throw new IllegalStateException("Parameter: imageIdList required shouldn't be empty");
+        }
+        for (Long imageId : request.getImageIdList()) {
+            Optional<StdImage> image = stdImageRepository.findById(imageId);
+            if (image.isPresent()) {
+                String url = image.get().getImageUrl();
+                String public_id = url.substring(url.lastIndexOf("media"), url.lastIndexOf("."));
+                Map<?, ?> deleteResult = cloudinary.uploader().destroy(public_id,
+                        ObjectUtils.asMap("resource_type", "image"));
+                if (Objects.equals(deleteResult.get("result").toString(), "ok")) {
+                    stdImageRepository.deleteById(imageId);
+                    success.add(imageId);
+                    response.put("success", success);
+                } else {
+                    failed.add(imageId);
+                    response.put("failed", failed);
+                }
+            } else {
+                notFound.add(imageId);
+                response.put("notFound", notFound);
+            }
+        }
+        return response;
     }
 }

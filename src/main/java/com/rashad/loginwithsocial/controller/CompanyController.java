@@ -1,6 +1,7 @@
 package com.rashad.loginwithsocial.controller;
 
 import com.rashad.loginwithsocial.entity.Company;
+import com.rashad.loginwithsocial.entity.Stadium;
 import com.rashad.loginwithsocial.model.CustomResponse;
 import com.rashad.loginwithsocial.service.CompanyServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -42,6 +44,37 @@ public class CompanyController {
         Company company = companyServiceImpl.getCompanyFromId(companyId);
         Map<String, Object> data = new HashMap<>();
         data.put("company_details", company);
+        return new ResponseEntity<>(new CustomResponse(true, data, "", null), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Get all companies",
+            description = "Get all company list",
+            responses = {@ApiResponse(responseCode = "200", description = "Success response",
+                    content = @Content(schema = @Schema(implementation = CustomResponse.class),
+                            mediaType = MediaType.APPLICATION_JSON_VALUE))}
+    )
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllCompany() {
+        List<Company> company = companyServiceImpl.getAllCompanies();
+        Map<String, Object> data = new HashMap<>();
+        data.put("all_company_list", company);
+        return new ResponseEntity<>(new CustomResponse(true, data, "", null), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Get all stadiums one company",
+            description = "For getting all stadiums you have to send company id",
+            parameters = {@Parameter(name = "id", description = "companyId", example = "5")},
+            responses = {@ApiResponse(responseCode = "200", description = "Success response",
+                    content = @Content(schema = @Schema(implementation = CustomResponse.class),
+                            mediaType = MediaType.APPLICATION_JSON_VALUE))}
+    )
+    @GetMapping("/{id}/stadium")
+    public ResponseEntity<?> getCompanyStadiums(@PathVariable("id") Long companyId) {
+        List<Stadium> stadiums = companyServiceImpl.getStadiumsFromCompanyId(companyId);
+        Map<String, Object> data = new HashMap<>();
+        data.put("stadium_list", stadiums);
         return new ResponseEntity<>(new CustomResponse(true, data, "", null), HttpStatus.OK);
     }
 }
