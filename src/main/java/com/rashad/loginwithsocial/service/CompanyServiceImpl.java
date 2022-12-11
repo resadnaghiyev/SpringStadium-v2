@@ -18,7 +18,7 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public Company getCompanyFromId(Long companyId) {
         return companyRepository.findById(companyId).orElseThrow(() ->
-                new IllegalStateException("Company with id: " + companyId + " is not found"));
+                new IllegalStateException("company: Company with id: " + companyId + " is not found"));
     }
 
     @Override
@@ -29,7 +29,7 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public List<Stadium> getStadiumsFromCompanyId(Long companyId) {
         Company company = companyRepository.findById(companyId).orElseThrow(() ->
-                new IllegalStateException("Company with id: " + companyId + " is not found"));
+                new IllegalStateException("company: Company with id: " + companyId + " is not found"));
         return company.getStadiums();
     }
 }

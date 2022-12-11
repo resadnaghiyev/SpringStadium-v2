@@ -15,6 +15,7 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 //@ControllerAdvice (you have to use ResponseBody when using this)
@@ -23,8 +24,11 @@ public class MyControllerAdvice {
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<?> handleIllegalStateException(IllegalStateException exception) {
-        Map<String, String> errorMap = new HashMap<>();
-        errorMap.put("message", exception.getMessage());
+        Map<String, List<String>> errorMap = new HashMap<>();
+        String message = exception.getMessage();
+        String field = message.substring(0, message.indexOf(":"));
+        String error = message.substring(message.indexOf(":") + 2);
+        errorMap.put(field, List.of(error));
         return new ResponseEntity<>(new CustomResponse(
                 false, null, "", errorMap), HttpStatus.BAD_REQUEST);
     }
@@ -41,9 +45,9 @@ public class MyControllerAdvice {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleInvalidArgument(MethodArgumentNotValidException exception) {
-        Map<String, String> errorMap = new HashMap<>();
+        Map<String, List<String>> errorMap = new HashMap<>();
         exception.getBindingResult().getFieldErrors().forEach(
-                error -> errorMap.put(error.getField(), error.getDefaultMessage()));
+                error -> errorMap.put(error.getField(), List.of(error.getDefaultMessage())));
         return new ResponseEntity<>(new CustomResponse(
                 false, null, "", errorMap), HttpStatus.UNPROCESSABLE_ENTITY);
     }

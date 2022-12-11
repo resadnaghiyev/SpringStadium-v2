@@ -186,4 +186,6 @@ public class AdminController {
         Map<String, List<Long>> data = adminServiceImpl.deleteStadiumImage(stadiumId, request);
         return new ResponseEntity<>(new CustomResponse(true, data, "", null), HttpStatus.OK);
     }
+
+
 }

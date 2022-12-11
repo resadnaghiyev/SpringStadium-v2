@@ -114,9 +114,7 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<?> getUserMe() {
         User user = userService.getUserMe();
-        Map<String, Object> data = new HashMap<>();
-        data.put("user_details", user);
-        return new ResponseEntity<>(new CustomResponse(true, data, "", null), HttpStatus.OK);
+        return new ResponseEntity<>(new CustomResponse(true, user, "", null), HttpStatus.OK);
     }
 
     @Operation(
@@ -130,9 +128,7 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getUser(@PathVariable("id") Long userId) {
         Object user = userService.getUserFromId(userId);
-        Map<String, Object> data = new HashMap<>();
-        data.put("user_details", user);
-        return new ResponseEntity<>(new CustomResponse(true, data, "", null), HttpStatus.OK);
+        return new ResponseEntity<>(new CustomResponse(true, user, "", null), HttpStatus.OK);
     }
 
     @Operation(
@@ -145,9 +141,7 @@ public class UserController {
     @GetMapping("/all")
     public ResponseEntity<?> getAllUsers() {
         List<User> users = userService.getAllUsers();
-        Map<String, Object> data = new HashMap<>();
-        data.put("all_users", users);
-        return new ResponseEntity<>(new CustomResponse(true, data, "", null), HttpStatus.OK);
+        return new ResponseEntity<>(new CustomResponse(true, users, "", null), HttpStatus.OK);
     }
 
     @Operation(
@@ -183,4 +177,6 @@ public class UserController {
         data.put("message", "Your profile private now.");
         return new ResponseEntity<>(new CustomResponse(true, data, "", null), HttpStatus.OK);
     }
+
+
 }

@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -26,11 +27,13 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 
-        Map<String, Object> body = new HashMap<>();
+        final Map<String, Object> body = new HashMap<>();
+        Map<String, List<String>> errorMap = new HashMap<>();
+        errorMap.put("authorization", List.of(exception.getMessage()));
         body.put("success", false);
         body.put("data", null);
         body.put("message", "");
-        body.put("error", exception.getMessage());
+        body.put("error", errorMap);
 
         final ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(response.getOutputStream(), body);

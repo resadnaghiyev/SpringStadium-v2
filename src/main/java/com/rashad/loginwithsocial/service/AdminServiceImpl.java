@@ -56,12 +56,12 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public Company uploadCompanyLogo(Long id, MultipartFile file) throws IOException {
+    public Company uploadCompanyLogo(Long companyId, MultipartFile file) throws IOException {
         if (!file.isEmpty()) {
-            Company company = companyRepository.findById(id).orElseThrow(() ->
-                    new IllegalStateException("Company with id: " + id + " not found"));
+            Company company = companyRepository.findById(companyId).orElseThrow(() ->
+                    new IllegalStateException("company: Company with id: " + companyId + " not found"));
             if (company.getLogoUrl() != null) {
-                deleteCompanyLogo(id);
+                deleteCompanyLogo(companyId);
             }
             Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(),
                     ObjectUtils.asMap("folder", "/media/logos"));
@@ -70,14 +70,14 @@ public class AdminServiceImpl implements AdminService {
             companyRepository.save(company);
             return company;
         } else {
-            throw new IllegalStateException("Parameter: file required shouldn't be empty");
+            throw new IllegalStateException("file: Required shouldn't be empty");
         }
     }
 
     @Override
-    public void deleteCompanyLogo(Long id) throws IOException {
-        Company company = companyRepository.findById(id).orElseThrow(() ->
-                new IllegalStateException("Company with id: " + id + " not found"));
+    public void deleteCompanyLogo(Long companyId) throws IOException {
+        Company company = companyRepository.findById(companyId).orElseThrow(() ->
+                new IllegalStateException("company: Company with id: " + companyId + " not found"));
         String url = company.getLogoUrl();
         if (url != null) {
             String public_id = url.substring(url.lastIndexOf("media"), url.lastIndexOf("."));
@@ -87,24 +87,24 @@ public class AdminServiceImpl implements AdminService {
                 company.setLogoUrl(null);
                 companyRepository.save(company);
             } else {
-                throw new IllegalStateException("Deleting logo failed, public_id is not correct");
+                throw new IllegalStateException("cloudinary: Deleting logo failed, public_id is not correct");
             }
         } else {
-            throw new IllegalStateException("You dont have logo for deleting");
+            throw new IllegalStateException("logo: You dont have logo for deleting");
         }
     }
 
     @Override
     public void deleteCompany(Long companyId) {
         Company company = companyRepository.findById(companyId).orElseThrow(() ->
-                new IllegalStateException("Company with id: " + companyId + " not found"));
+                new IllegalStateException("company: Company with id: " + companyId + " not found"));
         companyRepository.delete(company);
     }
 
     @Override
     public Long createStadium(Long companyId, StadiumRequest request) {
         Company company = companyRepository.findById(companyId).orElseThrow(() ->
-                new IllegalStateException("Company with id: " + companyId + " not found"));
+                new IllegalStateException("company: Company with id: " + companyId + " not found"));
         List<StdPhone> phones = new ArrayList<>();
         for (PhoneRequest i : request.getPhones()) {
             StdPhone phone = new StdPhone(i.getPhone());
@@ -137,9 +137,9 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public Stadium uploadStadiumImage(Long id, MultipartFile[] files) throws IOException {
-        Stadium stadium = stadiumRepository.findById(id).orElseThrow(() ->
-                new IllegalStateException("Stadium with id: " + id + " not found"));
+    public Stadium uploadStadiumImage(Long stadiumId, MultipartFile[] files) throws IOException {
+        Stadium stadium = stadiumRepository.findById(stadiumId).orElseThrow(() ->
+                new IllegalStateException("stadium: Stadium with id: " + stadiumId + " not found"));
         if (!files[0].isEmpty()) {
             for (MultipartFile file : files) {
                 Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(),
@@ -150,21 +150,19 @@ public class AdminServiceImpl implements AdminService {
                 stadiumRepository.save(stadium);
             }
         } else {
-            throw new IllegalStateException("Parameter: file required shouldn't be empty");
+            throw new IllegalStateException("file: Required shouldn't be empty");
         }
         return stadium;
     }
 
     @Override
     public Map<String, List<Long>> deleteStadiumImage(Long id, ImageRequest request) throws IOException {
-        Stadium stadium = stadiumRepository.findById(id).orElseThrow(() ->
-                new IllegalStateException("Stadium with id: " + id + " not found"));
         Map<String, List<Long>> response = new HashMap<>();
         List<Long> success = new ArrayList<>();
         List<Long> failed = new ArrayList<>();
         List<Long> notFound = new ArrayList<>();
         if (request.getImageIdList().size() == 0) {
-            throw new IllegalStateException("Parameter: imageIdList required shouldn't be empty");
+            throw new IllegalStateException("imageIdList: required shouldn't be empty");
         }
         for (Long imageId : request.getImageIdList()) {
             Optional<StdImage> image = stdImageRepository.findById(imageId);

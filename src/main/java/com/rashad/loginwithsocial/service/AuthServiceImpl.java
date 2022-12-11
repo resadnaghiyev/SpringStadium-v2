@@ -49,14 +49,14 @@ public class AuthServiceImpl implements AuthService {
     private final ConfirmTokenServiceImpl confirmTokenServiceImpl;
 
     @Override
-    public String register(RegisterRequest request) {
+    public Map<String, Object> register(RegisterRequest request) {
         if (!emailValidator.test(request.getEmail())) {
-            throw new IllegalStateException("email not valid");
+            throw new IllegalStateException("email: Email not valid");
         }
         if (!passwordValidator.test(request.getPassword())) {
-            throw new IllegalStateException("password not valid");
+            throw new IllegalStateException("password: Password not valid");
         }
-        String token = userService.signUpUser(
+        Map<String, Object> body = userService.signUpUser(
                 new User(
                         request.getName(),
                         request.getSurname(),
@@ -66,15 +66,16 @@ public class AuthServiceImpl implements AuthService {
                         request.getPassword()
                 )
         );
-        String link = baseUrl + "/api/v1/user/register/confirm?token=" + token;
+        String link = baseUrl + "/api/v1/user/register/confirm?token=" + body.get("token");
         emailSender.send(request.getEmail(), buildEmail(request.getName(), link));
-        return "Confirmation token send to email: " + request.getEmail();
+        body.put("message", "Confirmation token send to email: " + request.getEmail());
+        return body;
     }
 
     @Override
     public String resendToken(String token) {
         ConfirmationToken oldToken = confirmTokenServiceImpl.getToken(token).orElseThrow(() ->
-                new IllegalStateException("Token is not valid"));
+                new IllegalStateException("token: Token is not valid"));
         String newToken = userService.createToken(oldToken.getUser());
         String link = baseUrl + "/api/v1/user/register/confirm?token=" + newToken;
         emailSender.send(oldToken.getUser().getEmail(), buildEmail(oldToken.getUser().getName(), link));
@@ -85,13 +86,13 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public String confirmToken(String token) {
         ConfirmationToken confirmationToken = confirmTokenServiceImpl.getToken(token)
-                .orElseThrow(() -> new IllegalStateException("token not valid"));
+                .orElseThrow(() -> new IllegalStateException("token: Token is not valid"));
         if (confirmationToken.getConfirmedAt() != null) {
-            throw new IllegalStateException("Email already confirmed");
+            throw new IllegalStateException("email: Email already confirmed");
         }
         LocalDateTime expiredAt = confirmationToken.getExpiresAt();
         if (expiredAt.isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("token expired");
+            throw new IllegalStateException("token: Token expired");
         }
         confirmTokenServiceImpl.setConfirmedAt(token);
         userService.enableUser(confirmationToken.getUser().getUsername());
@@ -109,7 +110,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Map<String, List<String>> loginWithGoogle(GoogleLogin request) {
         if (!emailValidator.test(request.getEmail())) {
-            throw new IllegalStateException("email not valid");
+            throw new IllegalStateException("email: Email not valid");
         }
         User user = userRepository.findByEmail(request.getEmail());
         if (user == null) {
@@ -150,13 +151,15 @@ public class AuthServiceImpl implements AuthService {
                 }
             } catch (Exception exception) {
                 response.setStatus(UNAUTHORIZED.value());
-                Map<String, Object> error = new HashMap<>();
-                error.put("success", false);
-                error.put("data", null);
-                error.put("message", "");
-                error.put("error", exception.getMessage());
+                Map<String, Object> body = new HashMap<>();
+                Map<String, List<String>> errorMap = new HashMap<>();
+                errorMap.put("jwt", List.of(exception.getMessage()));
+                body.put("success", false);
+                body.put("data", null);
+                body.put("message", "");
+                body.put("error", errorMap);
                 response.setContentType(APPLICATION_JSON_VALUE);
-                new ObjectMapper().writeValue(response.getOutputStream(), error);
+                new ObjectMapper().writeValue(response.getOutputStream(), body);
             }
         }
         return new JwtResponse();

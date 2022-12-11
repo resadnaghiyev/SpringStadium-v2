@@ -42,9 +42,7 @@ public class CompanyController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getCompany(@PathVariable("id") Long companyId) {
         Company company = companyServiceImpl.getCompanyFromId(companyId);
-        Map<String, Object> data = new HashMap<>();
-        data.put("company_details", company);
-        return new ResponseEntity<>(new CustomResponse(true, data, "", null), HttpStatus.OK);
+        return new ResponseEntity<>(new CustomResponse(true, company, "", null), HttpStatus.OK);
     }
 
     @Operation(
@@ -56,10 +54,8 @@ public class CompanyController {
     )
     @GetMapping("/all")
     public ResponseEntity<?> getAllCompany() {
-        List<Company> company = companyServiceImpl.getAllCompanies();
-        Map<String, Object> data = new HashMap<>();
-        data.put("all_company_list", company);
-        return new ResponseEntity<>(new CustomResponse(true, data, "", null), HttpStatus.OK);
+        List<Company> companies = companyServiceImpl.getAllCompanies();
+        return new ResponseEntity<>(new CustomResponse(true, companies, "", null), HttpStatus.OK);
     }
 
     @Operation(
@@ -73,8 +69,6 @@ public class CompanyController {
     @GetMapping("/{id}/stadium")
     public ResponseEntity<?> getCompanyStadiums(@PathVariable("id") Long companyId) {
         List<Stadium> stadiums = companyServiceImpl.getStadiumsFromCompanyId(companyId);
-        Map<String, Object> data = new HashMap<>();
-        data.put("stadium_list", stadiums);
-        return new ResponseEntity<>(new CustomResponse(true, data, "", null), HttpStatus.OK);
+        return new ResponseEntity<>(new CustomResponse(true, stadiums, "", null), HttpStatus.OK);
     }
 }

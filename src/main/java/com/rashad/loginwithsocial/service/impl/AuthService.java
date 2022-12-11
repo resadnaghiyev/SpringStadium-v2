@@ -13,7 +13,7 @@ import java.util.Map;
 
 public interface AuthService {
 
-    String register(RegisterRequest request);
+    Map<String, Object> register(RegisterRequest request);
 
     String resendToken(String token);
 

@@ -40,21 +40,24 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username).orElseThrow(() ->
-                new IllegalStateException("User with username: " + username + " is not found"));
+                new IllegalStateException("username: User with username: " + username + " is not found"));
         return UserDetailsImpl.build(user);
     }
 
     @Override
-    public String signUpUser(User user) {
+    public Map<String, Object> signUpUser(User user) {
         if (userRepository.existsByUsername(user.getUsername())) {
-            throw new IllegalStateException("This username already taken");
+            throw new IllegalStateException("username: This username already taken");
         }
         if (userRepository.existsByEmail(user.getEmail())) {
-            throw new IllegalStateException("This email already taken");
+            throw new IllegalStateException("email: This email already taken");
         }
         String token = createToken(user);
         saveUser(user);
-        return token;
+        Map<String, Object> body = new HashMap<>();
+        body.put("token", token);
+        body.put("user", user);
+        return body;
     }
 
     public String createToken(User user) {
@@ -98,21 +101,21 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public void addRoleToUser(String username, ERole roleName) {
         User user = userRepository.findByUsername(username).orElseThrow(() ->
-                new IllegalStateException(username + " is not found"));
+                new IllegalStateException("username: " + username + " is not found"));
         Role role = roleRepository.findByName(roleName).orElseThrow(() ->
-                new IllegalStateException(roleName + " is not found"));
+                new IllegalStateException("role: " + roleName + " is not found"));
         user.getRoles().add(role);
     }
 
     public User checkIfUserOwnsData(Long id) {
         User user = userRepository.findById(id).orElseThrow(() ->
-                new IllegalStateException("User with with id: " + id + " is not found"));
+                new IllegalStateException("user: user with id: " + id + " is not found"));
         UserDetails principal = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getPrincipal();
         if (Objects.equals(user.getUsername(), principal.getUsername())) {
             return user;
         } else {
-            throw new IllegalStateException("This id: " + id + " is not belong to you");
+            throw new IllegalStateException("user: This id: " + id + " is not belong to you");
         }
     }
 
@@ -134,7 +137,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             userRepository.save(user);
             return url;
         } else {
-            throw new IllegalStateException("Parameter file required shouldn't be empty");
+            throw new IllegalStateException("file: Required shouldn't be empty");
         }
 
     }
@@ -151,10 +154,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 user.setAvatarUrl(null);
                 userRepository.save(user);
             } else {
-                throw new IllegalStateException("Deleting avatar failed, public_id is not correct");
+                throw new IllegalStateException("cloudinary: Deleting avatar failed, public_id is not correct");
             }
         } else {
-            throw new IllegalStateException("You dont have avatar for deleting");
+            throw new IllegalStateException("avatar: You dont have avatar for deleting");
         }
     }
 
@@ -173,13 +176,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public User getUserFromUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(() ->
-                new IllegalStateException("User with username: " + username + " is not found"));
+                new IllegalStateException("username: User with username: " + username + " is not found"));
     }
 
     @Override
     public Object getUserFromId(Long id) {
         User user = userRepository.findById(id).orElseThrow(() ->
-                new IllegalStateException("User with id: " + id + " is not found"));
+                new IllegalStateException("user: User with id: " + id + " is not found"));
         if (user.getIsPrivate()) {
             return new PrivateProfile(
                     user.getId(),

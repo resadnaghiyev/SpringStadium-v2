@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
@@ -49,13 +50,15 @@ public class JwtFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request, response);
             } catch (Exception exception) {
                 response.setStatus(UNAUTHORIZED.value());
-                Map<String, Object> error = new HashMap<>();
-                error.put("success", false);
-                error.put("data", null);
-                error.put("message", "");
-                error.put("error", exception.getMessage());
+                Map<String, Object> body = new HashMap<>();
+                Map<String, List<String>> errorMap = new HashMap<>();
+                errorMap.put("jwt", List.of(exception.getMessage()));
+                body.put("success", false);
+                body.put("data", null);
+                body.put("message", "");
+                body.put("error", errorMap);
                 response.setContentType(APPLICATION_JSON_VALUE);
-                new ObjectMapper().writeValue(response.getOutputStream(), error);
+                new ObjectMapper().writeValue(response.getOutputStream(), body);
             }
         } else {
             filterChain.doFilter(request, response);

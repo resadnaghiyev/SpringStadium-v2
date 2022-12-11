@@ -46,6 +46,10 @@ public class User extends Auditable<String> {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<ConfirmationToken> confirmationTokens = new ArrayList<>();
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Rating> ratings;
+
     private Boolean locked = false;
     private Boolean enabled = false;
     private Boolean isPrivate = false;

@@ -41,9 +41,9 @@ public class AuthController {
     )
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Valid RegisterRequest request) {
-        String message = authServiceImpl.register(request);
-        return new ResponseEntity<>(
-                new CustomResponse(true, null, message, null), HttpStatus.CREATED);
+        Map<String, Object> body = authServiceImpl.register(request);
+        return new ResponseEntity<>(new CustomResponse(
+                true, body.get("user"), body.get("message").toString(), null), HttpStatus.CREATED);
     }
 
     @Operation(

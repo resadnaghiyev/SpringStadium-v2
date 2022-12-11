@@ -50,9 +50,15 @@ public class Stadium extends Auditable<String> {
     @JoinColumn(name = "district_id", referencedColumnName = "id", nullable = false)
     private District district;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "stadium", fetch = FetchType.LAZY)
+    private List<Rating> ratings;
+
     private Double price;
 
     private Double rating;
+
+    private Integer userRating;
 
     public Stadium(String name,
                    String address,
