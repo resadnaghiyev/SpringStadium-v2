@@ -46,12 +46,6 @@ public class StadiumController {
         return new ResponseEntity<>(new CustomResponse(true, stadium, "", null), HttpStatus.OK);
     }
 
-    @GetMapping("/{id}/test")
-    public ResponseEntity<?> getStadiumTest(@PathVariable("id") Long stadiumId) {
-        Stadium stadium = stadiumService.getStadiumFromId(stadiumId);
-        return new ResponseEntity<>(new CustomResponse(true, stadium, "", null), HttpStatus.OK);
-    }
-
     @Operation(
             summary = "Get all stadiums",
             description = "Get all stadium list",

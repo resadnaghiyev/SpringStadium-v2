@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -181,11 +180,16 @@ public class AdminController {
     )
     @DeleteMapping("/stadium/{id}/delete/image")
     public ResponseEntity<?> deleteStadiumImage(@PathVariable("id") Long stadiumId,
-                                                @RequestBody @Valid ImageRequest request)
+                                                @RequestBody @Valid IdListRequest request)
                                                 throws IOException {
         Map<String, List<Long>> data = adminServiceImpl.deleteStadiumImage(stadiumId, request);
         return new ResponseEntity<>(new CustomResponse(true, data, "", null), HttpStatus.OK);
     }
 
+    @DeleteMapping("/user/delete-all")
+    public ResponseEntity<?> deleteAllUser(@RequestBody @Valid IdListRequest request) {
+        adminServiceImpl.deleteAllUser(request.getIdList());
+        return new ResponseEntity<>(new CustomResponse(true, null, "", null), HttpStatus.OK);
+    }
 
 }

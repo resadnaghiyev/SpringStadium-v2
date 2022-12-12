@@ -32,6 +32,7 @@ public class User extends Auditable<String> {
     @JsonIgnore
     private String password;
 
+    @Column(unique = true)
     private String phone;
 
     @Column(name = "avatar_url")
@@ -47,11 +48,14 @@ public class User extends Auditable<String> {
     private List<ConfirmationToken> confirmationTokens = new ArrayList<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<Rating> ratings;
 
+    @JsonIgnore
+    private Boolean enabled = true;
+
     private Boolean locked = false;
-    private Boolean enabled = false;
+    private Boolean isActive = false;
     private Boolean isPrivate = false;
 
     public User(String name,

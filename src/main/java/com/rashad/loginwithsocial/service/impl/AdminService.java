@@ -25,6 +25,7 @@ public interface AdminService {
 
     Stadium uploadStadiumImage(Long stadiumId, MultipartFile[] files) throws IOException;
 
-    Map<String, List<Long>> deleteStadiumImage(Long stadiumId, ImageRequest request) throws IOException;
+    Map<String, List<Long>> deleteStadiumImage(Long stadiumId, IdListRequest request) throws IOException;
 
+    void deleteAllUser(List<Long> ids);
 }

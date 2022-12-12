@@ -12,8 +12,8 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ImageRequest {
+public class IdListRequest {
 
     @NotNull(message = "required should not be empty")
-    private List<Long> imageIdList;
+    private List<Long> idList;
 }

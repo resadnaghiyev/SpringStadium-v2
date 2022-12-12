@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,6 +39,7 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = CustomResponse.class),
                             mediaType = MediaType.APPLICATION_JSON_VALUE))}
     )
+    @PreAuthorize("hasRole('USER')")
     @PostMapping(value = "/{id}/upload/avatar", consumes = "multipart/form-data")
     public ResponseEntity<?> uploadAvatar(@PathVariable("id") Long userId,
                                           @RequestParam("file") MultipartFile file)
@@ -57,6 +59,7 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = CustomResponse.class),
                             mediaType = MediaType.APPLICATION_JSON_VALUE))}
     )
+    @PreAuthorize("hasRole('USER')")
     @PostMapping(value = "/{id}/change/avatar", consumes = "multipart/form-data")
     public ResponseEntity<?> changeAvatar(@PathVariable("id") Long userId,
                                           @RequestParam("file") MultipartFile file)
@@ -77,6 +80,7 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = CustomResponse.class),
                             mediaType = MediaType.APPLICATION_JSON_VALUE))}
     )
+    @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/{id}/delete/avatar")
     public ResponseEntity<?> deleteAvatar(@PathVariable("id") Long userId) throws IOException {
         userService.deleteAvatar(userId);
@@ -94,6 +98,7 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = CustomResponse.class),
                             mediaType = MediaType.APPLICATION_JSON_VALUE))}
     )
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/{id}/add/bio")  // for deleting just sent empty body
     public ResponseEntity<?> addBio(@PathVariable("id") Long userId,
                                     @RequestBody @Valid BioRequest request) {
@@ -152,6 +157,7 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = CustomResponse.class),
                             mediaType = MediaType.APPLICATION_JSON_VALUE))}
     )
+    @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<?> deleteUser(@PathVariable("id") Long userId) {
         userService.deleteUser(userId);
@@ -169,6 +175,7 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = CustomResponse.class),
                             mediaType = MediaType.APPLICATION_JSON_VALUE))}
     )
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/{id}/private")
     public ResponseEntity<?> setPrivate(@PathVariable("id") Long userId) {
         userService.setPrivate(userId);
@@ -177,6 +184,5 @@ public class UserController {
         data.put("message", "Your profile private now.");
         return new ResponseEntity<>(new CustomResponse(true, data, "", null), HttpStatus.OK);
     }
-
 
 }

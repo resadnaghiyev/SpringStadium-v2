@@ -28,12 +28,10 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 
         final Map<String, Object> body = new HashMap<>();
-        Map<String, List<String>> errorMap = new HashMap<>();
-        errorMap.put("authorization", List.of(exception.getMessage()));
         body.put("success", false);
         body.put("data", null);
-        body.put("message", "");
-        body.put("error", errorMap);
+        body.put("message", exception.getMessage());
+        body.put("error", null);
 
         final ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(response.getOutputStream(), body);

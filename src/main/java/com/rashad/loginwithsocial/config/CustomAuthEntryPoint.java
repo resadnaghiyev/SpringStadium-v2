@@ -28,12 +28,10 @@ public class CustomAuthEntryPoint implements AuthenticationEntryPoint {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
         final Map<String, Object> body = new HashMap<>();
-        Map<String, List<String>> errorMap = new HashMap<>();
-        errorMap.put("authentication", List.of(authException.getMessage()));
         body.put("success", false);
         body.put("data", null);
-        body.put("message", "");
-        body.put("error", errorMap);
+        body.put("message", authException.getMessage());
+        body.put("error", null);
 
         final ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(response.getOutputStream(), body);

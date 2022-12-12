@@ -16,21 +16,13 @@ public interface UserService {
 
     User registerGoogle(User user);
 
-    void enableUser(String email);
-
     void saveUser(User user);
+
+    void setActiveUser(String username);
 
     void saveRole(Role role);
 
     void addRoleToUser(String username, ERole roleName);
-
-    User getUserFromUsername(String username);
-
-    Object getUserFromId(Long id);
-
-    List<User> getAllUsers();
-
-    void deleteUser(Long id);
 
     void addBioToUser(Long id, BioRequest request);
 
@@ -41,4 +33,13 @@ public interface UserService {
     User getUserMe();
 
     void setPrivate(Long userId);
+
+    User getUserFromUsername(String username);
+
+    Object getUserFromId(Long id);
+
+    List<User> getAllUsers();
+
+    void deleteUser(Long id);
+
 }

@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,11 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.stream.Collectors;
+import java.util.*;
 
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -47,6 +42,16 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordValidator passwordValidator;
     private final AuthenticationManager authenticationManager;
     private final ConfirmTokenServiceImpl confirmTokenServiceImpl;
+
+    @Override
+    public Boolean checkEmailExist(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    @Override
+    public Boolean checkUsernameExist(String username) {
+        return userRepository.existsByUsername(username);
+    }
 
     @Override
     public Map<String, Object> register(RegisterRequest request) {
@@ -95,12 +100,12 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalStateException("token: Token expired");
         }
         confirmTokenServiceImpl.setConfirmedAt(token);
-        userService.enableUser(confirmationToken.getUser().getUsername());
+        userService.setActiveUser(confirmationToken.getUser().getUsername());
         return "User confirmed";
     }
 
     @Override
-    public Map<String, List<String>> loginUser(LoginRequest request) {
+    public JwtResponse loginUser(LoginRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 request.getUsername(),
                 request.getPassword()));
@@ -108,7 +113,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Map<String, List<String>> loginWithGoogle(GoogleLogin request) {
+    public JwtResponse loginWithGoogle(GoogleLogin request) {
         if (!emailValidator.test(request.getEmail())) {
             throw new IllegalStateException("email: Email not valid");
         }
@@ -119,17 +124,13 @@ public class AuthServiceImpl implements AuthService {
         return getJwtTokens(user.getUsername());
     }
 
-    public Map<String, List<String>> getJwtTokens(String username) {
+    public JwtResponse getJwtTokens(String username) {
         UserDetails userDetails = userService.loadUserByUsername(username);
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
-        Map<String, List<String>> tokens = new HashMap<>();
-        tokens.put("access", List.of(jwtUtils.generateAccessToken(userDetails)));
-        tokens.put("refresh", List.of(jwtUtils.generateRefreshToken(userDetails)));
-        tokens.put("username", List.of(username));
-        tokens.put("roles", roles);
-        return tokens;
+        User user = userRepository.findByUsername(username).orElseThrow(() ->
+                new IllegalStateException("user: Not found"));
+        String access_token = jwtUtils.generateAccessToken(userDetails);
+        String refresh_token = jwtUtils.generateRefreshToken(userDetails);
+        return new JwtResponse(access_token, refresh_token, user);
     }
 
     @Override
@@ -144,10 +145,10 @@ public class AuthServiceImpl implements AuthService {
                 if (jwtUtils.validateToken(refresh_token, userDetails) &&
                         !jwtUtils.isAccessToken(refresh_token)) {
                     String access_token = jwtUtils.generateAccessToken(userDetails);
-                    List<String> roles = userDetails.getAuthorities().stream()
-                            .map(GrantedAuthority::getAuthority)
-                            .collect(Collectors.toList());
-                    return new JwtResponse(access_token, refresh_token, username, roles);
+                    refresh_token = jwtUtils.generateRefreshToken(userDetails);
+                    User user = userRepository.findByUsername(username).orElseThrow(() ->
+                            new IllegalStateException("user: Not found"));
+                    return new JwtResponse(access_token, refresh_token, user);
                 }
             } catch (Exception exception) {
                 response.setStatus(UNAUTHORIZED.value());

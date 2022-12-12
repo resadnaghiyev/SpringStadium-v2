@@ -37,6 +37,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     Cloudinary cloudinary = new Cloudinary();
 
+    public String getAvatarUrl() {
+        return "https://res.cloudinary.com/resadnv/image/upload" +
+                "/v1670859626/media/avatars/vu72i6dy2frwgwzrc12b.jpg";
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username).orElseThrow(() ->
@@ -51,6 +56,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new IllegalStateException("email: This email already taken");
+        }
+        if (userRepository.existsByPhone(user.getPhone())) {
+            throw new IllegalStateException("phone: This phone already taken");
         }
         String token = createToken(user);
         saveUser(user);
@@ -76,21 +84,21 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public User registerGoogle(User user) {
         saveUser(user);
-        enableUser(user.getUsername());
+        setActiveUser(user.getUsername());
         return user;
     }
 
     @Override
-    public void enableUser(String username) {
-        userRepository.enableUser(username);
-        addRoleToUser(username, ERole.ROLE_USER);
-    }
-
-
-    @Override
     public void saveUser(User user) {
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        user.setAvatarUrl(getAvatarUrl());
         userRepository.save(user);
+    }
+
+    @Override
+    public void setActiveUser(String username) {
+        userRepository.activeUser(username);
+        addRoleToUser(username, ERole.ROLE_USER);
     }
 
     @Override
@@ -132,7 +140,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (!file.isEmpty()) {
             Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(),
                     ObjectUtils.asMap("folder", "/media/avatars"));
-            String url = uploadResult.get("url").toString();
+            String url = uploadResult.get("secure_url").toString();
             user.setAvatarUrl(url);
             userRepository.save(user);
             return url;
@@ -146,12 +154,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public void deleteAvatar(Long id) throws IOException {
         User user = checkIfUserOwnsData(id);
         String url = user.getAvatarUrl();
-        if (url != null) {
+        if (!Objects.equals(url, getAvatarUrl())) {
             String public_id = url.substring(url.lastIndexOf("media"), url.lastIndexOf("."));
             Map<?, ?> deleteResult = cloudinary.uploader().destroy(public_id,
                     ObjectUtils.asMap("resource_type", "image"));
             if (Objects.equals(deleteResult.get("result").toString(), "ok")) {
-                user.setAvatarUrl(null);
+                user.setAvatarUrl(getAvatarUrl());
                 userRepository.save(user);
             } else {
                 throw new IllegalStateException("cloudinary: Deleting avatar failed, public_id is not correct");

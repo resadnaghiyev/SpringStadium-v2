@@ -8,10 +8,13 @@ import com.rashad.loginwithsocial.model.RegisterRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 public interface AuthService {
+
+    Boolean checkEmailExist(String email);
+
+    Boolean checkUsernameExist(String username);
 
     Map<String, Object> register(RegisterRequest request);
 
@@ -19,10 +22,11 @@ public interface AuthService {
 
     String confirmToken(String token);
 
-    Map<String, List<String>> loginUser(LoginRequest request);
+    JwtResponse loginUser(LoginRequest request);
 
-    Map<String, List<String>> loginWithGoogle(GoogleLogin request);
+    JwtResponse loginWithGoogle(GoogleLogin request);
 
     JwtResponse refreshToken(HttpServletRequest request,
                              HttpServletResponse response) throws IOException;
+
 }

@@ -18,6 +18,7 @@ import java.util.*;
 public class AdminServiceImpl implements AdminService {
 
     private final UserServiceImpl userService;
+    private final UserRepository userRepository;
     private final ComPhoneRepository comPhoneRepository;
     private final CompanyRepository companyRepository;
     private final StdPhoneRepository stdPhoneRepository;
@@ -37,8 +38,8 @@ public class AdminServiceImpl implements AdminService {
                 request.getPhone(),
                 request.getUsername(),
                 request.getPassword());
-        userService.saveUser(user);
-        userService.enableUser(request.getUsername());
+        userRepository.save(user);
+        userService.setActiveUser(request.getUsername());
         return "User created successfully";
     }
 
@@ -65,7 +66,7 @@ public class AdminServiceImpl implements AdminService {
             }
             Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(),
                     ObjectUtils.asMap("folder", "/media/logos"));
-            String url = uploadResult.get("url").toString();
+            String url = uploadResult.get("secure_url").toString();
             company.setLogoUrl(url);
             companyRepository.save(company);
             return company;
@@ -156,15 +157,15 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public Map<String, List<Long>> deleteStadiumImage(Long id, ImageRequest request) throws IOException {
+    public Map<String, List<Long>> deleteStadiumImage(Long id, IdListRequest request) throws IOException {
         Map<String, List<Long>> response = new HashMap<>();
         List<Long> success = new ArrayList<>();
         List<Long> failed = new ArrayList<>();
         List<Long> notFound = new ArrayList<>();
-        if (request.getImageIdList().size() == 0) {
+        if (request.getIdList().size() == 0) {
             throw new IllegalStateException("imageIdList: required shouldn't be empty");
         }
-        for (Long imageId : request.getImageIdList()) {
+        for (Long imageId : request.getIdList()) {
             Optional<StdImage> image = stdImageRepository.findById(imageId);
             if (image.isPresent()) {
                 String url = image.get().getImageUrl();
@@ -185,5 +186,12 @@ public class AdminServiceImpl implements AdminService {
             }
         }
         return response;
+    }
+
+    @Override
+    public void deleteAllUser(List<Long> ids) {
+        for (Long id : ids) {
+            userRepository.deleteById(id);
+        }
     }
 }

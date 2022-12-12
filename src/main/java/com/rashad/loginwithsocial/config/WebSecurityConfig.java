@@ -54,10 +54,7 @@ public class WebSecurityConfig {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
-                .antMatchers("/user/login/**").permitAll()
-                .antMatchers("/user/token/refresh/**").permitAll()
-                .antMatchers("/user/register/**").permitAll()
-                .antMatchers("/user/google/login/**").permitAll()
+                .antMatchers("/user/**").permitAll()
                 .antMatchers("/company/**").permitAll()
                 .antMatchers("/stadium/**").permitAll()
                 .antMatchers("/admin/**").permitAll()
@@ -87,3 +84,9 @@ public class WebSecurityConfig {
         };
     }
 }
+
+
+//                .antMatchers("/user/login/**").permitAll()
+//                .antMatchers("/user/token/refresh/**").permitAll()
+//                .antMatchers("/user/register/**").permitAll()
+//                .antMatchers("/user/google/login/**").permitAll()

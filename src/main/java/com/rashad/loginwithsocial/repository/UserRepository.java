@@ -16,13 +16,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findByEmail(String email);
     Boolean existsByEmail(String email);
     Boolean existsByUsername(String username);
+    Boolean existsByPhone(String phone);
     Optional<User> findByUsername(String username);
 
     @Transactional
     @Modifying
     @Query("UPDATE User a " +
-            "SET a.enabled = TRUE WHERE a.username = ?1")
-    void enableUser(String username);
+            "SET a.isActive = TRUE WHERE a.username = ?1")
+    void activeUser(String username);
 
     @Transactional
     @Modifying

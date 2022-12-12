@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
@@ -31,6 +30,34 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 public class AuthController {
 
     private final AuthServiceImpl authServiceImpl;
+
+    @Operation(
+            summary = "Check email exist",
+            description = "For checking if email exist you have to send request with email",
+            responses = {@ApiResponse(responseCode = "200", description = "Success response",
+                    content = @Content(schema = @Schema(implementation = CustomResponse.class),
+                            mediaType = MediaType.APPLICATION_JSON_VALUE))}
+    )
+    @GetMapping("/email")
+    public ResponseEntity<?> checkEmailExist(@RequestParam("check") String email) {
+        Boolean exist = authServiceImpl.checkEmailExist(email);
+        String message = "Email exist: " + exist;
+        return new ResponseEntity<>(new CustomResponse(true, null, message, null), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Check username exist",
+            description = "For checking if username exist you have to send request with username",
+            responses = {@ApiResponse(responseCode = "200", description = "Success response",
+                    content = @Content(schema = @Schema(implementation = CustomResponse.class),
+                            mediaType = MediaType.APPLICATION_JSON_VALUE))}
+    )
+    @GetMapping("/username")
+    public ResponseEntity<?> checkUsernameExist(@RequestParam("check") String username) {
+        Boolean exist = authServiceImpl.checkUsernameExist(username);
+        String message = "Username exist: " + exist;
+        return new ResponseEntity<>(new CustomResponse(true, null, message, null), HttpStatus.OK);
+    }
 
     @Operation(
             summary = "Register",
@@ -57,8 +84,7 @@ public class AuthController {
     @GetMapping("/register/resend")
     public ResponseEntity<?> resendToken(@RequestParam("token") String token) {
         String message = authServiceImpl.resendToken(token);
-        return new ResponseEntity<>(
-                new CustomResponse(true, null, message, null), HttpStatus.OK);
+        return new ResponseEntity<>(new CustomResponse(true, null, message, null), HttpStatus.OK);
     }
 
     @Operation(
@@ -72,8 +98,7 @@ public class AuthController {
     @GetMapping("/register/confirm")
     public ResponseEntity<?> confirm(@RequestParam("token") String token) {
         String message = authServiceImpl.confirmToken(token);
-        return new ResponseEntity<>(
-                new CustomResponse(true, null, message, null), HttpStatus.OK);
+        return new ResponseEntity<>(new CustomResponse(true, null, message, null), HttpStatus.OK);
     }
 
     @Operation(
@@ -85,21 +110,15 @@ public class AuthController {
     )
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequest request) {
-        Map<String, List<String>> tokens = authServiceImpl.loginUser(request);
-        JwtResponse jwt = new JwtResponse(
-                tokens.get("access").get(0), tokens.get("refresh").get(0),
-                tokens.get("username").get(0), tokens.get("roles"));
-        return new ResponseEntity<>(new CustomResponse(true, jwt, "", null), HttpStatus.OK);
+        JwtResponse tokens = authServiceImpl.loginUser(request);
+        return new ResponseEntity<>(new CustomResponse(true, tokens, "", null), HttpStatus.OK);
     }
 
     @Hidden
     @PostMapping("/google/login")
     public ResponseEntity<?> google(@RequestBody GoogleLogin request) {
-        Map<String, List<String>> tokens = authServiceImpl.loginWithGoogle(request);
-        JwtResponse jwt = new JwtResponse(
-                tokens.get("access").get(0), tokens.get("refresh").get(0),
-                tokens.get("username").get(0), tokens.get("roles"));
-        return new ResponseEntity<>(new CustomResponse(true, jwt, "", null), HttpStatus.OK);
+        JwtResponse tokens = authServiceImpl.loginWithGoogle(request);
+        return new ResponseEntity<>(new CustomResponse(true, tokens, "", null), HttpStatus.OK);
     }
 
     @Operation(
