@@ -42,7 +42,7 @@ public class CompanyController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getCompany(@PathVariable("id") Long companyId) {
         Company company = companyServiceImpl.getCompanyFromId(companyId);
-        return new ResponseEntity<>(new CustomResponse(true, company, "", null), HttpStatus.OK);
+        return new ResponseEntity<>(new CustomResponse(company), HttpStatus.OK);
     }
 
     @Operation(
@@ -55,7 +55,7 @@ public class CompanyController {
     @GetMapping("/all")
     public ResponseEntity<?> getAllCompany() {
         List<Company> companies = companyServiceImpl.getAllCompanies();
-        return new ResponseEntity<>(new CustomResponse(true, companies, "", null), HttpStatus.OK);
+        return new ResponseEntity<>(new CustomResponse(companies), HttpStatus.OK);
     }
 
     @Operation(
@@ -69,6 +69,6 @@ public class CompanyController {
     @GetMapping("/{id}/stadium")
     public ResponseEntity<?> getCompanyStadiums(@PathVariable("id") Long companyId) {
         List<Stadium> stadiums = companyServiceImpl.getStadiumsFromCompanyId(companyId);
-        return new ResponseEntity<>(new CustomResponse(true, stadiums, "", null), HttpStatus.OK);
+        return new ResponseEntity<>(new CustomResponse(stadiums), HttpStatus.OK);
     }
 }

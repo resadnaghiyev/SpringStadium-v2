@@ -29,8 +29,7 @@ public class MyControllerAdvice {
         String field = message.substring(0, message.indexOf(":"));
         String error = message.substring(message.indexOf(":") + 2);
         errorMap.put(field, List.of(error));
-        return new ResponseEntity<>(new CustomResponse(
-                false, null, "", errorMap), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new CustomResponse(false, errorMap), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
@@ -39,8 +38,8 @@ public class MyControllerAdvice {
             HttpRequestMethodNotSupportedException exception) {
         Map<String, String> errorMap = new HashMap<>();
         errorMap.put("method", exception.getMessage());
-        return new ResponseEntity<>(new CustomResponse(
-                false, null, "", errorMap), HttpStatus.METHOD_NOT_ALLOWED);
+        return new ResponseEntity<>(new CustomResponse(false, errorMap),
+                HttpStatus.METHOD_NOT_ALLOWED);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -48,8 +47,8 @@ public class MyControllerAdvice {
         Map<String, List<String>> errorMap = new HashMap<>();
         exception.getBindingResult().getFieldErrors().forEach(
                 error -> errorMap.put(error.getField(), List.of(error.getDefaultMessage())));
-        return new ResponseEntity<>(new CustomResponse(
-                false, null, "", errorMap), HttpStatus.UNPROCESSABLE_ENTITY);
+        return new ResponseEntity<>(new CustomResponse(false, errorMap),
+                HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     @ExceptionHandler(MultipartException.class)
@@ -57,24 +56,21 @@ public class MyControllerAdvice {
     public ResponseEntity<CustomResponse> handleMultipartException(MultipartException exception) {
         Map<String, String> errorMap = new HashMap<>();
         errorMap.put("multipart", exception.getMessage());
-        return new ResponseEntity<>(new CustomResponse(
-                false, null, "", errorMap), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new CustomResponse(false, errorMap), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     public ResponseEntity<?> handleMediaTypeNotSupported(HttpMediaTypeNotSupportedException exception){
         Map<String, String> errorMap = new HashMap<>();
         errorMap.put("multipart", exception.getMessage());
-        return new ResponseEntity<>(new CustomResponse(
-                false, null, "", errorMap), HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+        return new ResponseEntity<>(new CustomResponse(false, errorMap), HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     }
 
     @ExceptionHandler(MissingServletRequestPartException.class)
     public ResponseEntity<?> handleMissingRequestPart(MissingServletRequestPartException exception){
         Map<String, String> errorMap = new HashMap<>();
         errorMap.put("multipart", exception.getMessage());
-        return new ResponseEntity<>(new CustomResponse(
-                false, null, "", errorMap), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new CustomResponse(false, errorMap), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
@@ -83,8 +79,7 @@ public class MyControllerAdvice {
 //        String exMess = exception.getMessage();
 //        String error = exMess.substring(0, exMess.indexOf("for") - 1);
         errorMap.put("sql", exception.getMessage());
-        return new ResponseEntity<>(new CustomResponse(
-                false, null, "", errorMap), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new CustomResponse(false, errorMap), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -93,10 +88,13 @@ public class MyControllerAdvice {
         String exMess = exception.getMessage();
         String error = exMess != null ? exMess.substring(0, exMess.indexOf(":")) : null;
         errorMap.put("body", error);
-        return new ResponseEntity<>(new CustomResponse(
-                false, null, "", errorMap), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new CustomResponse(false, errorMap), HttpStatus.BAD_REQUEST);
     }
+
+//    InvalidDataAccessApiUsageException
+//    IllegalArgumentException
 }
+
 
 
 //        ErrorObject errorObject = new ErrorObject();

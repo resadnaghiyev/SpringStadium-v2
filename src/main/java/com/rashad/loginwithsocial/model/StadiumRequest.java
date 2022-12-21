@@ -1,5 +1,6 @@
 package com.rashad.loginwithsocial.model;
 
+import com.rashad.loginwithsocial.entity.StdPhone;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,7 +9,7 @@ import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 @Getter
@@ -50,6 +51,6 @@ public class StadiumRequest {
     @Schema(example = "24.90")
     private Double price;
 
-    @NotNull(message = "required should not be empty")
-    private List<PhoneRequest> phones;
+    @NotEmpty(message = "required should not be empty")
+    private List<StdPhone> phones;
 }

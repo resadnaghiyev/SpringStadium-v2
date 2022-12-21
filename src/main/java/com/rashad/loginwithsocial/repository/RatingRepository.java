@@ -13,4 +13,6 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
     Optional<Rating> findByPoint(Integer point);
 
     Rating findByStadiumIdAndUserId(Long stadiumId, Long userId);
+
+    Rating findByStadiumIdAndUser_Username(Long stadiumId, String username);
 }

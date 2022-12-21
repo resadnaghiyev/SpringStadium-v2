@@ -1,10 +1,8 @@
 package com.rashad.loginwithsocial.controller;
 
-import com.rashad.loginwithsocial.entity.Company;
 import com.rashad.loginwithsocial.entity.Stadium;
 import com.rashad.loginwithsocial.model.CustomResponse;
 import com.rashad.loginwithsocial.model.RatingRequest;
-import com.rashad.loginwithsocial.repository.StadiumRepository;
 import com.rashad.loginwithsocial.service.StadiumServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,9 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/stadium")
@@ -74,11 +70,4 @@ public class StadiumController {
         String message = stadiumService.addRatingToStadium(stadiumId, request);
         return new ResponseEntity<>(new CustomResponse(true, null, message, null), HttpStatus.OK);
     }
-
-    @GetMapping("/{id}/rating")
-    public ResponseEntity<?> getStadiumRating(@PathVariable("id") Long stadiumId) {
-        String message = stadiumService.getStadiumRating(stadiumId);
-        return new ResponseEntity<>(new CustomResponse(true, null, message, null), HttpStatus.OK);
-    }
-
 }

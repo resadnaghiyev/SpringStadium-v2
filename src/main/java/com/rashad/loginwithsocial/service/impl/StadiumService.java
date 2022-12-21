@@ -12,6 +12,4 @@ public interface StadiumService {
     List<Stadium> getAllStadiums();
 
     String addRatingToStadium(Long stadiumId, RatingRequest request);
-
-    String getStadiumRating(Long stadiumId);
 }

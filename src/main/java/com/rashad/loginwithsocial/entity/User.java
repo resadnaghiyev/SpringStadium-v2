@@ -52,6 +52,10 @@ public class User extends Auditable<String> {
     private List<Rating> ratings;
 
     @JsonIgnore
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Company> companies;
+
+    @JsonIgnore
     private Boolean enabled = true;
 
     private Boolean locked = false;
